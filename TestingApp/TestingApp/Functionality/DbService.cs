@@ -10,12 +10,16 @@ namespace TestingApp.Functionality
 
         public bool RemoveItemFromShoppingCart(int productId)
         {
-            throw new NotImplementedException();
+            if (productId == null) return false;
+            ProductIdBeingProcessed = Convert.ToInt32(productId);
+            return ProcessResult;
         }
 
         public bool SaveItemToShoppingCart(Product product)
         {
-            throw new NotImplementedException();
+            if (product == null) return false;
+            ProductBeingProcessed = product;
+            return ProcessResult;
         }
     }
 }
