@@ -1,46 +1,46 @@
 ﻿using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using TestingApp.Functionality;
 using TestingApp.Models;
 using Xunit;
 
 namespace TestingApp.Test
 {
-    public class ShoppingCartTest
+    public class ShoppingCartMockTest
     {
+        public readonly Mock<IDbService> _dbServiceMock = new();
+
         [Fact]
         public void Add_product()
         {
-            var dbService = new DbService();
-            dbService.ProcessResult = true;
-            var shoppingcart = new ShoppingCart(dbService);
+            var shoppingcart = new ShoppingCart(_dbServiceMock.Object);
 
             var product = new Product(1, "shoe", 120);
             var result = shoppingcart.AddProduct(product);
 
             Assert.True(result);
-            Assert.Equal(result, dbService.ProcessResult);
-            Assert.Equal("shoe", dbService.ProductBeingProcessed.Name);
+            _dbServiceMock.Verify(x => x.SaveItemToShoppingCart(It.IsAny<Product>()), Times.Once);
         }
 
         [Fact]
         public void Add_product_failed_when_invalid_payload()
         {
-            var dbService = new DbService();
-            dbService.ProcessResult = false;
-            var shoppingcart = new ShoppingCart(dbService);
+            var shoppingcart = new ShoppingCart(_dbServiceMock.Object);
 
             var result = shoppingcart.AddProduct(null);
 
             Assert.False(result);
-            Assert.Equal(result, dbService.ProcessResult);
+            _dbServiceMock.Verify(x => x.SaveItemToShoppingCart(It.IsAny<Product>()), Times.Never);
         }
 
         [Fact]
         public void Remove_product_success()
         {
-            var dbService = new DbService();
-            dbService.ProcessResult = true;
-            var shoppingcart = new ShoppingCart(dbService);
+            var shoppingcart = new ShoppingCart(_dbServiceMock.Object);
 
             var product = new Product(1, "shoe", 120);
             var result = shoppingcart.AddProduct(product);
@@ -48,7 +48,7 @@ namespace TestingApp.Test
             var deleteResult = shoppingcart.DeleteProduct(product.Id);
 
             Assert.True(deleteResult);
-            Assert.Equal(deleteResult, dbService.ProcessResult);
+            _dbServiceMock.Verify(x => x.SaveItemToShoppingCart(It.IsAny<Product>()), Times.Once);
         }
     }
 }
